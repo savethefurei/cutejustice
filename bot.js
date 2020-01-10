@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { YoutubeDataAPI } = require("youtube-v3-api")
 const {
 	prefix,
 	token,
@@ -6,6 +7,7 @@ const {
 const ytdl = require('ytdl-core');
 const client = new Discord.Client();
 const queue = new Map();
+const youtube = new YoutubeDataAPI(process.env.YT_API_KEY);
 
 client.once('ready', () => {
 	console.log('Ready!');
@@ -33,6 +35,9 @@ client.on('message', async message => {
 		return;
 	} else if (message.content.startsWith(`${prefix}stop`)) {
 		stop(message, serverQueue);
+		return;
+	} if (message.content.startsWith(`${prefix}search`)) {
+		search(message, serverQueue);
 		return;
 	} else {
 		message.channel.send('You need to enter a valid command!')
@@ -81,9 +86,23 @@ async function execute(message, serverQueue) {
 	} else {
 		serverQueue.songs.push(song);
 		console.log(serverQueue.songs);
-		return message.channel.send(`${song.title} has been added to the queue!`);
+		return message.channel.send(`*${song.title}* has been added to the queue!`);
 	}
+}
 
+async function search(message, serverQueue) {
+	if (!message.member.voiceChannel) return message.channel.send('You have to be in a voice channel to search the music!');
+	var args = message.content.split(' ');
+	args.splice(0, 1);
+	const query = args.join(" ");
+	youtube.searchAll(query, 1, {type: 'video'}).then((data) => {
+		if(data.items[0])
+			execute("!play https://www.youtube.com/watch?v=" + data.items[0].id.videoId, serverQueue);
+		else
+			return message.channel.send(`No video found.`);
+	},(err) => {
+		console.error(err);
+	})
 }
 
 function skip(message, serverQueue) {
@@ -112,7 +131,6 @@ async function play(guild, song) {
     });
     const dispatcher = await serverQueue.connection.playStream(stream)
         .on('end', async reason => {
-			console.log(reason);
             if (reason === 'Stream is not generating quickly enough.')
             serverQueue.songs.shift('Stream is not generating quickly enough');
             await play(guild, serverQueue.songs[0]);
