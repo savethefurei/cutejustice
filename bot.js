@@ -98,25 +98,25 @@ function stop(message, serverQueue) {
 	serverQueue.connection.dispatcher.end();
 }
 
-function play(guild, song) {
-	const serverQueue = queue.get(guild.id);
+async function play(guild, song) {
+    const serverQueue = await queue.get(guild.id);
 
-	if (!song) {
-		serverQueue.voiceChannel.leave();
-		queue.delete(guild.id);
-		return;
-	}
+    if (!song) {
+        await serverQueue.voiceChannel.leave();
+        await queue.delete(guild.id);
+        return;
+    }
 
-	const dispatcher = serverQueue.connection.playStream(ytdl(song.url))
-		.on('end', () => {
-			console.log('Music ended!');
-			serverQueue.songs.shift();
-			play(guild, serverQueue.songs[0]);
-		})
-		.on('error', error => {
-			console.error(error);
-		});
-	dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
-}
+    const stream = await ytdl(song.url, {
+        filter: 'audioonly'
+    });
+    const dispatcher = await serverQueue.connection.playStream(stream)
+        .on('end', async reason => {
+            if (reason === 'Stream is not generating quickly enough.');
+            serverQueue.songs.shift('Stream is not generating quickly enough');
+            await play(guild, serverQueue.songs[0]);
+        })
+        .on('error', error => console.error(error));
+    dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
 
 client.login(process.env.BOT_TOKEN);
