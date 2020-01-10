@@ -6,6 +6,9 @@
   "scripts": {
     "start": "node bot.js"
   },
+  "engines": {
+	"node": "10.x"
+  },
   "dependencies": {
     "discord.js": "^11.5.0",
     "ffmpeg": "0.0.4",
