@@ -91,7 +91,7 @@ async function play(guild, song) {
 		queue.delete(guild.id);
 		return;
 	}
-	const dispatcher = serverQueue.connection.play(await ytdl(url), { type: 'opus' })
+	const dispatcher = serverQueue.connection.playOpusStream(await ytdl(url))
 		.on('end', () => {
 			console.log('Music ended!');
 			// Deletes the finished song from the queue
