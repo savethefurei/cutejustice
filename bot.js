@@ -102,7 +102,8 @@ async function search(message, serverQueue) {
 	youtube.searchAll(query, 1, {type: 'video'}).then((data) => {
 		if(data.items[0]) {
 			console.log("Found video: " + data.items[0].id.videoId);
-			execute("!play https://www.youtube.com/watch?v=" + data.items[0].id.videoId, serverQueue);
+			message.content = "!play https://www.youtube.com/watch?v=" + data.items[0].id.videoId;
+			execute(message, serverQueue);
 		} else
 			return message.channel.send(`No video found.`);
 	},(err) => {
