@@ -112,7 +112,8 @@ async function play(guild, song) {
     });
     const dispatcher = await serverQueue.connection.playStream(stream)
         .on('end', async reason => {
-            if (reason === 'Stream is not generating quickly enough.');
+			console.log(reason);
+            if (reason === 'Stream is not generating quickly enough.')
             serverQueue.songs.shift('Stream is not generating quickly enough');
             await play(guild, serverQueue.songs[0]);
         })
