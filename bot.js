@@ -3,7 +3,7 @@ const {
 	prefix,
 	token,
 } = require('./config.json');
-const ytdl = require('ytdl-core');
+const ytdl = require('ytdl-core-discord');
 const client = new Discord.Client();
 const queue = new Map();
 
@@ -91,7 +91,7 @@ function play(guild, song) {
 		queue.delete(guild.id);
 		return;
 	}
-	const dispatcher = serverQueue.connection.playStream(ytdl(song.url))
+	const dispatcher = serverQueue.connection.play(await ytdl(url), { type: 'opus' })
 		.on('end', () => {
 			console.log('Music ended!');
 			// Deletes the finished song from the queue
