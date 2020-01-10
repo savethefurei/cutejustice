@@ -45,7 +45,11 @@ client.on('message', async message => {
 });
 
 async function execute(message, serverQueue) {
-	const args = message.content.split(' ');
+	var args = null;
+	if(message.content)
+		args = message.content.split(' ');
+	else if(typeof message === 'string')
+		args = message.split(' ');
 
 	const voiceChannel = message.member.voiceChannel;
 	if (!voiceChannel) return message.channel.send('You need to be in a voice channel to play music!');
