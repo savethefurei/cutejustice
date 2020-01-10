@@ -118,5 +118,6 @@ async function play(guild, song) {
         })
         .on('error', error => console.error(error));
     dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
+}
 
 client.login(process.env.BOT_TOKEN);
